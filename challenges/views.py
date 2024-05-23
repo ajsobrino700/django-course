@@ -20,7 +20,7 @@ monthly_challenges = {
 
 def index(request):
     months = list(monthly_challenges.keys())
-    html_text  = [f'<li><a href="/challenge/{month}">{month}</a></li>' for month in months]
+    html_text  = [f'<li><a href="/challenge/{month.capitalize()}">{month.capitalize()}</a></li>' for month in months]
     response_data = "<ul>"+''.join(html_text)+"</ul>"
     return HttpResponse(bytes(response_data,'utf8'))
 
