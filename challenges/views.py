@@ -1,6 +1,7 @@
-from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.urls import reverse
-
+from django.template.loader import render_to_string
+from django.shortcuts import render
 
 # Create your views here.
 monthly_challenges = {
@@ -15,14 +16,16 @@ monthly_challenges = {
     "septemtber": "Learn Django fot at least 20 minutes evert day!",
     "october": "Eat no meat for the entire month!",
     "november": "Walk for at least 20 minutes every day!",
-    "december": "Learn Django fot at least 20 minutes evert day!",
+    "december": None
 }
 
 def index(request):
-    months = list(monthly_challenges.keys())
-    html_text  = [f'<li><a href="/challenge/{month.capitalize()}">{month.capitalize()}</a></li>' for month in months]
-    response_data = "<ul>"+''.join(html_text)+"</ul>"
-    return HttpResponse(bytes(response_data,'utf8'))
+    #response_data = render_to_string("challenges/challenge.html")
+    #return HttpResponse(bytes(response_data,'utf8'))
+    return render(request,"challenges/index.html",{ 
+            "months": list(monthly_challenges.keys())
+        }
+    )
 
 
 def january(request):
@@ -37,9 +40,13 @@ def march(request):
 def monthly_challenge(request,month):
     try:    
         challenge_text = monthly_challenges[month]
-        return HttpResponse(bytes(challenge_text,'utf8'))
+        return render(request,"challenges/challenge.html",{
+            "month": month,
+            "text":challenge_text
+        })
     except:
-        return HttpResponseNotFound(b"This month is not supported!")
+        response_data = render_to_string("404.html")
+        raise Http404(bytes(response_data,'utf8'))
 
 def monthly_challenge_by_number(request, month: int):
     try:
@@ -47,4 +54,4 @@ def monthly_challenge_by_number(request, month: int):
         redirect_path = reverse("month-challenge",args = [forward_month[month-1]])
         return HttpResponseRedirect(redirect_path)
     except:
-        return HttpResponseNotFound(b"This month is not supported!")
+        raise Http404(bytes(render_to_string("404.html"),'utf8'))
